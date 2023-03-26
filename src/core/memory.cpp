@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <array>
+#include <cstdio>
 #include <cstring>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -468,6 +469,13 @@ T MemorySystem::Read(const VAddr vaddr) {
     case PageType::Unmapped:
         LOG_ERROR(HW_Memory, "unmapped Read{} @ 0x{:08X} at PC 0x{:08X}", sizeof(T) * 8, vaddr,
                   Core::GetRunningCore().GetPC());
+        fprintf(stderr, "Unmapped Read%d @ 0x%.8x at PC 0x%.8x\n", sizeof(T) * 8, vaddr,
+                Core::GetRunningCore().GetPC());
+        for (int i = 0; i < 15; i++) {
+            fprintf(stderr, "R%d: 0x%.8x\n", i, Core::GetRunningCore().GetReg(i));
+        }
+        fflush(stderr);
+        abort();
         return 0;
     case PageType::Memory:
         ASSERT_MSG(false, "Mapped memory page without a pointer @ {:08X}", vaddr);
@@ -519,6 +527,13 @@ void MemorySystem::Write(const VAddr vaddr, const T data) {
     case PageType::Unmapped:
         LOG_ERROR(HW_Memory, "unmapped Write{} 0x{:08X} @ 0x{:08X} at PC 0x{:08X}",
                   sizeof(data) * 8, (u32)data, vaddr, Core::GetRunningCore().GetPC());
+        fprintf(stderr, "Unmapped    Write%d 0x%x @ 0x%.8x at PC 0x%.8x\n", sizeof(data) * 8,
+                (u32)data, vaddr, Core::GetRunningCore().GetPC());
+        for (int i = 0; i < 15; i++) {
+            fprintf(stderr, "R%d: 0x%.8x\n", i, Core::GetRunningCore().GetReg(i));
+        }
+        fflush(stderr);
+        abort();
         return;
     case PageType::Memory:
         ASSERT_MSG(false, "Mapped memory page without a pointer @ {:08X}", vaddr);
@@ -551,6 +566,13 @@ bool MemorySystem::WriteExclusive(const VAddr vaddr, const T data, const T expec
     case PageType::Unmapped:
         LOG_ERROR(HW_Memory, "unmapped Write{} 0x{:08X} @ 0x{:08X} at PC 0x{:08X}",
                   sizeof(data) * 8, (u32)data, vaddr, Core::GetRunningCore().GetPC());
+        fprintf(stderr, "Unmapped Write%d 0x%x @ 0x%.8x at PC 0x%.8x\n", sizeof(data) * 8,
+                (u32)data, vaddr, Core::GetRunningCore().GetPC());
+        for (int i = 0; i < 15; i++) {
+            fprintf(stderr, "R%d: 0x%.8x\n", i, Core::GetRunningCore().GetReg(i));
+        }
+        fflush(stderr);
+        abort();
         return true;
     case PageType::Memory:
         ASSERT_MSG(false, "Mapped memory page without a pointer @ {:08X}", vaddr);
